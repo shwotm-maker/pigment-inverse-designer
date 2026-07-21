@@ -117,7 +117,14 @@ def predict_with_uncertainty(
     Returns (predictions, uncertainty_nm, valid_indices). ``uncertainty_nm`` is
     the standard deviation of per-tree predictions -- an internal model-variance
     reference value, NOT a statistical confidence interval (README section 4).
+
+    If a Chemprop (D-MPNN) bundle is supplied, delegate to its graph-based
+    predictor instead of the fingerprint path.
     """
+    if getattr(bundle, "is_chemprop", False):
+        from .chemprop_infer import predict_chemprop
+        return predict_chemprop(bundle, chromo_smiles, solvent_smiles)
+
     cfg = bundle.feature_config
     X, valid_idx = featurize_many(chromo_smiles, solvent_smiles, cfg)
     if len(valid_idx) == 0:
@@ -142,7 +149,20 @@ def save_bundle(bundle: ModelBundle, path: Path = config.MODEL_PATH) -> Path:
 
 
 def load_bundle(path: Path = config.MODEL_PATH) -> ModelBundle | None:
-    """Load a model bundle, returning None if it does not exist."""
+    """Load a model bundle.
+
+    Prefers a trained Chemprop (D-MPNN) checkpoint when its artifacts are
+    present; otherwise falls back to the joblib ExtraTrees baseline. Returns
+    None if neither exists.
+    """
+    try:
+        from .chemprop_infer import chemprop_available, load_chemprop_bundle
+        if chemprop_available():
+            logger.info("Chemprop artifacts found -- loading D-MPNN bundle.")
+            return load_chemprop_bundle()
+    except Exception as exc:  # pragma: no cover - defensive fallback
+        logger.error("Chemprop load failed (%s); falling back to baseline.", exc)
+
     if not Path(path).exists():
         return None
     try:
