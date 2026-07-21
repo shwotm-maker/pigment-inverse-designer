@@ -39,6 +39,7 @@ def _make_estimator() -> object:
     common = dict(
         n_estimators=config.N_ESTIMATORS,
         max_depth=config.MAX_DEPTH,
+        min_samples_leaf=getattr(config, "MIN_SAMPLES_LEAF", 1),
         n_jobs=config.N_JOBS,
         random_state=config.RANDOM_SEED,
     )
@@ -134,8 +135,8 @@ def predict_with_uncertainty(
 
 
 def save_bundle(bundle: ModelBundle, path: Path = config.MODEL_PATH) -> Path:
-    """Persist a model bundle with joblib."""
-    joblib.dump(bundle, path)
+    """Persist a model bundle with joblib (compressed to keep the file small)."""
+    joblib.dump(bundle, path, compress=3)
     logger.info("Saved model bundle to %s", path)
     return path
 

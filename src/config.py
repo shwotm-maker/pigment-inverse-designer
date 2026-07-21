@@ -72,8 +72,9 @@ DESCRIPTOR_NAMES: list[str] = [
 # Model
 # ---------------------------------------------------------------------------
 MODEL_TYPE: str = "extra_trees"  # "extra_trees" | "random_forest"
-N_ESTIMATORS: int = 300
-MAX_DEPTH: int | None = None
+N_ESTIMATORS: int = 200
+MAX_DEPTH: int | None = 30
+MIN_SAMPLES_LEAF: int = 5  # larger leaves -> smaller model + less overfit
 N_JOBS: int = -1
 
 # Reference std (nm) used to normalise the uncertainty indicator to ~[0, 1].
