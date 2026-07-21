@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+
+# Project artifacts
+data/raw/*
+data/processed/*
+models/*
+outputs/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+!models/.gitkeep
+!outputs/.gitkeep
+
+# Portable build / bundled python (huge, never deploy)
+dist/
+*.zip
+get-pip.py
+python-*-embed.zip
+.env
+.env.*
+
+# OS / IDE
+.DS_Store
+.idea/
+.vscode/
